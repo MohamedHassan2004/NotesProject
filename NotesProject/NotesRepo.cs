@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NotesProject
+﻿namespace NotesProject
 {
     internal class NotesRepo
     {
@@ -12,10 +6,14 @@ namespace NotesProject
         HashSet<string> Titles = new();
         public bool Add(Note note)
         {
-            if (Titles.Contains(note.Title)) return false;
-            if (note is null) return false;
-            notes.Add(note.Id, note);
-            return true;
+            if (note is null) 
+                return false;
+            else
+            {
+                notes.Add(note.Id, note);
+                Titles.Add(note.Title);
+                return true;
+            }
         }
         public bool Remove(int id)
         {
@@ -38,15 +36,16 @@ namespace NotesProject
         {
             notes.Clear();
         }
-        public bool UpdateNoteTitle(int id, string newTitle)
+        public int UpdateNoteTitle(int id, string newTitle)
         {
             var note = Get(id);
             if (note != null && !string.IsNullOrEmpty(newTitle))
             {
+                if(Titles.Contains(newTitle)) return -2;
                 note.Title = newTitle;
-                return true;
+                return 0;
             }
-            return false;
+            return -1;
         }
         public bool UpdateNoteContent(int id, string newContent)
         {
@@ -67,6 +66,10 @@ namespace NotesProject
                 return true;
             }
             return false;
+        }
+        public bool TitleExists(string title)
+        {
+            return Titles.Contains(title);
         }
     }
 }

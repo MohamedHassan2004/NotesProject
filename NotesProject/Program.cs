@@ -54,6 +54,24 @@
             Console.WriteLine(message);
             ChangeColor(defaultColor);
         }
+        static string GetValidTitle(NotesRepo repo, string prompt)
+        {
+            string? title;
+            do
+            {
+                Console.Write(prompt);
+                title = Console.ReadLine();
+                if (string.IsNullOrEmpty(title))
+                {
+                    ErrorMessage("Title can't be empty");
+                }
+                else if (repo.TitleExists(title))
+                {
+                    ErrorMessage("Title already exists");
+                }
+            } while (string.IsNullOrEmpty(title) || repo.TitleExists(title));
+            return title;
+        }
         static int GetPriority(string defaultPriority = "3")
         {
             Console.Write($"Enter priority (range[{Note.MinPriority}:{Note.MaxPriority}] {Note.MinPriority} is the most priority): ");
@@ -83,16 +101,8 @@
             return option;
         }
         static void AddNoteUI(NotesRepo repo)
-
         {
-            Console.Write("Enter title: ");
-            string? title = Console.ReadLine();
-            while(string.IsNullOrEmpty(title))
-            {
-                ErrorMessage("Title can't be empty");
-                Console.Write("Enter title: ");
-                title = Console.ReadLine();
-            }
+            string? title = GetValidTitle(repo, "Enter title: ");
             Console.Write("Enter content: ");
             string? content = Console.ReadLine() ?? "";
             int priority = GetPriority();
@@ -118,12 +128,7 @@
             switch (option)
             {
                 case 1:
-                    Console.Write("Enter new title: ");
-                    string? title = Console.ReadLine();
-                    if (repo.UpdateNoteTitle(id, title))
-                        SuccessMessage("Title updated successfully");
-                    else
-                        ErrorMessage("Title can't be empty");
+                    string? title = GetValidTitle(repo, "Enter new title: ");
                     break;
                 case 2:
                     Console.Write("Enter new content: ");
@@ -135,9 +140,7 @@
                     break;
                 case 3:
                     while (!repo.UpdateNotePriority(id, GetPriority()))
-                        ErrorMessage("Something wrong happend");
-                        
-                        
+                        ErrorMessage("Something wrong happend"); 
                     SuccessMessage("Priority updated successfully");
                     break;
                 case 4:
@@ -173,14 +176,7 @@
         static void ShowNoteDetails(Note note)
         {
             ChangeColor(ConsoleColor.Blue);
-            string separator = new string('^', 60);
-            Console.WriteLine(separator);
-            Console.WriteLine($"ID: {note.Id}");
-            Console.WriteLine($"Title: {note.Title}");
-            Console.WriteLine($"Content: {note.Content}");
-            Console.WriteLine($"Priority: {note.Priority}");
-            Console.WriteLine($"Created At: {note.CreatedAt.ToString("dd-MM-yyyy hh:mm")}");
-            Console.WriteLine(separator);
+            Console.WriteLine(note.ToString());
             ChangeColor(defaultColor);
         }
         static int ShowOptions(NotesRepo repo)

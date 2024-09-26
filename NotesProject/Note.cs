@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+﻿using Humanizer;
 
 namespace NotesProject
 {
@@ -54,8 +54,8 @@ namespace NotesProject
         public override string ToString()
         {
             string sparetor = new string('=', 70);
-            string note = $"{id}. {title}\tCreated At: {createdAt.ToString("dd-MM-yyyy hh:mm")}" 
-                + $"\n{new string('-',50)}\n" +
+            string note = $"{id}. {title}\tCreated: {createdAt.Humanize()}" 
+                + $"\n{new string('-',40)}\n" +
                 $"Content: {content}";
             return sparetor + "\n" + note + "\n" + sparetor;
         }

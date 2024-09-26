@@ -20,7 +20,6 @@
             while (true)
                 if (ShowOptions(repo) == -1) break;
 
-
         }
 
         static ConsoleColor defaultColor = ConsoleColor.White;
@@ -43,36 +42,68 @@
                 ChangeColor(ConsoleColor.Green);
             }
         }
+        static void ErrorMessage(string message)
+        {
+            ChangeColor(ConsoleColor.Red);
+            Console.WriteLine(message);
+            ChangeColor(defaultColor);
+        }
+        static void SuccessMessage(string message)
+        {
+            ChangeColor(ConsoleColor.Green);
+            Console.WriteLine(message);
+            ChangeColor(defaultColor);
+        }
+        static int GetPriority()
+        {
+            Console.Write("Enter priority (range[1,2,3] 1 is the most priority): ");
+            string inputPriority = Console.ReadLine() ?? "";
+            if (string.IsNullOrEmpty(inputPriority)) inputPriority = "3";
+            int priority;
+            if (!int.TryParse(inputPriority, out priority))
+            {
+                ErrorMessage("Invalid priority");
+                return GetPriority();
+            }
+            if (priority < 1 || priority > 3)
+            {
+                ErrorMessage("Invalid priority");
+                return GetPriority();
+            }
+            return priority;
+        }
+        static int GetNoteId()
+        {
+            Console.Write("Enter note id: ");
+            if(!int.TryParse(Console.ReadLine()?? "-1", out int id))
+            {
+                ErrorMessage("Invalid id");
+                return GetNoteId();
+            }
+            return id;
+        }
         static void AddNoteUI(NotesRepo repo)
         {
             Console.Write("Enter title: ");
             string? title = Console.ReadLine();
             if(string.IsNullOrEmpty(title))
             {
-                Console.WriteLine("Title can't be empty");
+                ErrorMessage("Title can't be empty");
                 return;
             }
             Console.Write("Enter content: ");
             string? content = Console.ReadLine() ?? "";
-            Console.Write("Enter priority (range[1,2,3] 1 is the most priority): ");
-            string inputPriority = Console.ReadLine();
-            if (string.IsNullOrEmpty(inputPriority)) inputPriority = "3";
-            int priority = int.Parse(inputPriority);
-            if (priority < 1 || priority > 3)
-            {
-                Console.WriteLine("Invalid priority");
-                return;
-            }
+            int priority = GetPriority();
             Note note = new(title, content, priority);
             repo.Add(note);
-            Console.WriteLine("Note added successfully");
+            SuccessMessage("Note has been added successfully");
         }
         static void UpdateNoteUI(NotesRepo repo, int id)
         {
             Note? n = repo.Get(id);
             if (n is null)
             {
-                Console.WriteLine("Note not found");
+                ErrorMessage("Note not found");
                 return;
             }
 
@@ -89,37 +120,37 @@
                     Console.Write("Enter new title: ");
                     string? title = Console.ReadLine();
                     if (repo.UpdateNoteTitle(id, title))
-                        Console.WriteLine("Title updated successfully");
+                        SuccessMessage("Title updated successfully");
                     else
-                        Console.WriteLine("Title can't be empty");
+                        ErrorMessage("Title can't be empty");
                     break;
                 case 2:
                     Console.Write("Enter new content: ");
                     string? content = Console.ReadLine();
                     if (repo.UpdateNoteContent(id, content))
-                        Console.WriteLine("Content updated successfully");
+                        SuccessMessage("Content updated successfully");
                     else
-                        Console.WriteLine("Content can't be empty");
+                        ErrorMessage("Content can't be empty");
                     break;
                 case 3:
                     Console.Write("Enter new priority: ");
-                    int priority;
-                    if (int.TryParse(Console.ReadLine(), out priority) && repo.UpdateNotePriority(id, priority))
-                        Console.WriteLine("Priority updated successfully");
+                    GetPriority();
+                    if (repo.UpdateNotePriority(id, GetPriority()))
+                        SuccessMessage("Priority updated successfully");
                     else
-                        Console.WriteLine("Invalid priority");
+                        ErrorMessage("Invalid priority");
                     break;
                 case 4:
                     return;
                 default:
-                    Console.WriteLine("Invalid option - the valid options are [1,2,3]");
+                    ErrorMessage("Invalid option");
                     break;
             }
         }
         static void RemoveNoteUI(NotesRepo repo, int id)
         {
-            if(!repo.Remove(id)) Console.WriteLine("Note not found");
-            else Console.WriteLine("Note removed successfully");
+            if(!repo.Remove(id)) ErrorMessage("Note not found");
+            else SuccessMessage("Note removed successfully");
         }
         static void ShowNotes(NotesRepo repo)
         {
@@ -134,12 +165,16 @@
         }
         static void ShowNoteDetails(Note note)
         {
-            string separator = new string('*',60);
+            ChangeColor(ConsoleColor.Blue);
+            string separator = new string('*', 60);
             Console.WriteLine(separator);
+            Console.WriteLine($"ID: {note.Id}");
             Console.WriteLine($"Title: {note.Title}");
             Console.WriteLine($"Content: {note.Content}");
             Console.WriteLine($"Priority: {note.Priority}");
+            Console.WriteLine($"Created At: {note.CreatedAt.ToString("dd-MM-yyyy hh:mm")}");
             Console.WriteLine(separator);
+            ChangeColor(defaultColor);
         }
         static int ShowOptions(NotesRepo repo)
         {
@@ -150,40 +185,40 @@
             Console.WriteLine("4. Show Notes");
             Console.WriteLine("5. Show Note Details");
             Console.WriteLine("6. Exit");
-            int EditOption = int.Parse(Console.ReadLine() ?? "-1");
-            switch (EditOption)
+            int Option;
+            if(!int.TryParse(Console.ReadLine(), out Option))
+            {
+                ErrorMessage("Invalid Option");
+                return 0;
+            }
+            switch (Option)
             {
                 case 1:
                     AddNoteUI(repo);
                     break;
                 case 2:
-                    Console.Write("Enter note id: ");
-                    int id = int.Parse(Console.ReadLine() ?? "-1");
-                    UpdateNoteUI(repo, id);
+                    UpdateNoteUI(repo, GetNoteId());
                     break;
                 case 3:
-                    Console.Write("Enter note id: ");
-                    int id2 = int.Parse(Console.ReadLine() ?? "-1");
-                    RemoveNoteUI(repo, id2);
+                    RemoveNoteUI(repo, GetNoteId());
                     break;
                 case 4:
                     Console.WriteLine(sparetor);
-                    Console.WriteLine("Your Notes");
-                    Console.WriteLine("==========");
+                    Console.WriteLine("Your Notes:");
+                    Console.WriteLine("===========");
                     ShowNotes(repo);
                     Console.WriteLine(sparetor);
                     break;
                 case 5:
-                    Console.Write("Enter note id: ");
-                    int id3 = int.Parse(Console.ReadLine() ?? "-1");
-                    Note? note = repo.Get(id3);
-                    if(note is null) Console.WriteLine("Note not found");
+                    Note? note = repo.Get(GetNoteId());
+                    if(note is null) ErrorMessage("Note not found");
                     else ShowNoteDetails(note);
                     break;
                 case 6:
+                    Console.WriteLine("Closing...");
                     return -1;
                 default:
-                    Console.WriteLine("Invalid Option!");
+                    ErrorMessage("Invalid Option!");
                     break;
             }
             return 0;

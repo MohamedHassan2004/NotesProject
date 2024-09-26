@@ -9,9 +9,10 @@ namespace NotesProject
     internal class NotesRepo
     {
         Dictionary<int, Note> notes = new();
+        HashSet<string> Titles = new();
         public bool Add(Note note)
         {
-            if (notes.ContainsKey(note.Id)) return false;
+            if (Titles.Contains(note.Title)) return false;
             if (note is null) return false;
             notes.Add(note.Id, note);
             return true;

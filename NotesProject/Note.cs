@@ -4,15 +4,6 @@ namespace NotesProject
 {
     internal class Note
     {
-
-        string ToTitleCase(string str)
-        {
-            if (string.IsNullOrEmpty(str))
-                return str;
-            TextInfo textInfo = CultureInfo.CurrentCulture.TextInfo;
-            return textInfo.ToTitleCase(str.ToLower());
-        }
-
         static int count = 0;
         int id;
         string title;
@@ -28,7 +19,7 @@ namespace NotesProject
                 {
                     throw new ArgumentNullException("value");
                 }
-                else { title = ToTitleCase(value); }
+                else { title = value; }
             }
         }
         public string Content { get => content; set{ content = value; }}

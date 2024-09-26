@@ -61,7 +61,7 @@ namespace NotesProject
         public bool UpdateNotePriority(int id, int newPriority)
         {
             var note = Get(id);
-            if (note != null && newPriority > 0 && newPriority < 4)
+            if (note != null && newPriority >= Note.MaxPriority && newPriority <= Note.MinPriority)
             {
                 note.Priority = newPriority;
                 return true;

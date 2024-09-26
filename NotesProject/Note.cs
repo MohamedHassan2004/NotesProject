@@ -23,12 +23,14 @@ namespace NotesProject
             }
         }
         public string Content { get => content; set{ content = value; }}
+        public static int MaxPriority { get => 3; }
+        public static int MinPriority { get => 1; }
         public int Priority
         {
             get => priority; 
             set
             {
-                if (value > 0 && value < 4)
+                if (value >= MinPriority && value <= MaxPriority)
                 {
                     priority = value;
                 }

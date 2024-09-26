@@ -17,7 +17,7 @@
             repo.Add(n4);
             repo.Add(n5);
 
-            while (true)
+            while (true) 
                 if (ShowOptions(repo) == -1) break;
 
         }
@@ -54,9 +54,9 @@
             Console.WriteLine(message);
             ChangeColor(defaultColor);
         }
-        static int GetPriority(string defaultPriority = "3" )
+        static int GetPriority(string defaultPriority = "3")
         {
-            Console.Write($"Enter priority (range[{Note.MinPriority}:{Note.MaxPriority}] 1 is the most priority): ");
+            Console.Write($"Enter priority (range[{Note.MinPriority}:{Note.MaxPriority}] {Note.MinPriority} is the most priority): ");
             string inputPriority = Console.ReadLine() ?? "";
             if (string.IsNullOrEmpty(inputPriority)) inputPriority = defaultPriority;
             int priority;
@@ -134,11 +134,11 @@
                         ErrorMessage("Content can't be empty");
                     break;
                 case 3:
-                    Console.Write("Enter new priority: ");
-                    if (repo.UpdateNotePriority(id, GetPriority()))
-                        SuccessMessage("Priority updated successfully");
-                    else
-                        ErrorMessage("Invalid priority");
+                    while (!repo.UpdateNotePriority(id, GetPriority()))
+                        ErrorMessage("Something wrong happend");
+                        
+                        
+                    SuccessMessage("Priority updated successfully");
                     break;
                 case 4:
                     return;
